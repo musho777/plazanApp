@@ -1,14 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import SignupThanksIcon from "../icons/SignupThanksIcon";
 import { MainButton } from "../components/MainButton";
 import CloseBtnIcon from "../icons/CloseBtnIcon";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useDispatch } from "react-redux";
+import { ClearConfirmCode } from "../services/action/errorAction";
+import { ClearLogin } from "../services/action/action";
 
 export const SignupThanksScreen = () => {
   const navigation = useNavigation();
-
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(ClearConfirmCode())
+    dispatch(ClearLogin())
+  }, [])
   return (
     <LinearGradient colors={["#f7f7f7", "#fff"]} style={styles.container}>
       <CloseBtnIcon

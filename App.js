@@ -1,5 +1,5 @@
 import * as SplashScreen from "expo-splash-screen";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
@@ -16,6 +16,9 @@ import { PromoScreen } from "./src/screens/PromoScreen";
 import { MainScreen } from "./src/screens/MainScreen";
 import { ThanksForOrderScreen } from "./src/screens/ThanksForOrderScreen";
 import { LinearGradient } from "expo-linear-gradient";
+import { Provider, useSelector, } from 'react-redux';
+import { store } from "./src/services/reducer/configStore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -30,9 +33,19 @@ export default function App() {
     MontserratSemiBold: require("./src/fonts/Montserrat-SemiBold.ttf"),
     MontserratExtraBold: require("./src/fonts/Montserrat-ExtraBold.ttf"),
   });
+  const [initialScreen, setInitialScreen] = useState("RegisterTab");
 
-  const [initialScreen, setInitialScreen] = useState("OrderTab");
+  const GetUser = async () => {
+    let token = await AsyncStorage.getItem('token')
+    if (token) {
+      // setToken(token)
+      setInitialScreen('ProfileTab')
+    }
+  }
 
+  useEffect(() => {
+    GetUser()
+  }, []);
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
@@ -44,62 +57,63 @@ export default function App() {
   }
 
   return (
-    // <SafeAreaProvider style={{ backgroundColor: "#F7F7F7" }}>
-    <SafeAreaProvider>
-      <LinearGradient colors={["#F7F7F7", "#FFFFFF"]}>
-        <StatusBar style="auto"></StatusBar>
-        <SafeAreaView edges={["top", "right", "left"]}>
-          <View onLayout={onLayoutRootView} style={styles.container}>
-            <NavigationContainer onLayout={onLayoutRootView}>
-              <Tab.Navigator
-                screenOptions={{
-                  headerShown: false,
-                  tabBarShowLabel: false,
-                }}
-                initialRouteName={initialScreen}
-                backBehavior="none"
-              >
-                <Tab.Screen
-                  options={{ tabBarStyle: { display: "none" } }}
-                  name="RegisterTab"
-                  component={RegisterTab}
-                ></Tab.Screen>
-                <Tab.Screen
-                  options={{ tabBarStyle: { display: "none" } }}
-                  name="OrderTab"
-                  component={OrderTab}
-                ></Tab.Screen>
-                <Tab.Screen
-                  options={{ tabBarStyle: { display: "none" } }}
-                  name="ProfileTab"
-                  component={ProfileTab}
-                ></Tab.Screen>
-                <Tab.Screen
-                  name="Main"
-                  component={MainScreen}
-                  options={{ tabBarStyle: { display: "none" } }}
-                />
-                <Tab.Screen
-                  name="CatalogTab"
-                  component={CatalogTab}
-                  options={{ tabBarStyle: { display: "none" } }}
-                />
-                {/* <Tab.Screen
+    <Provider store={store}>
+      <SafeAreaProvider>
+        <LinearGradient colors={["#F7F7F7", "#FFFFFF"]}>
+          <StatusBar style="auto"></StatusBar>
+          <SafeAreaView edges={["top", "right", "left"]}>
+            <View onLayout={onLayoutRootView} style={styles.container}>
+              <NavigationContainer onLayout={onLayoutRootView}>
+                <Tab.Navigator
+                  screenOptions={{
+                    headerShown: false,
+                    tabBarShowLabel: false,
+                  }}
+                  initialRouteName={initialScreen}
+                  backBehavior="none"
+                >
+                  <Tab.Screen
+                    options={{ tabBarStyle: { display: "none" } }}
+                    name="RegisterTab"
+                    component={RegisterTab}
+                  ></Tab.Screen>
+                  <Tab.Screen
+                    options={{ tabBarStyle: { display: "none" } }}
+                    name="OrderTab"
+                    component={OrderTab}
+                  ></Tab.Screen>
+                  <Tab.Screen
+                    options={{ tabBarStyle: { display: "none" } }}
+                    name="ProfileTab"
+                    component={ProfileTab}
+                  ></Tab.Screen>
+                  <Tab.Screen
+                    name="Main"
+                    component={MainScreen}
+                    options={{ tabBarStyle: { display: "none" } }}
+                  />
+                  <Tab.Screen
+                    name="CatalogTab"
+                    component={CatalogTab}
+                    options={{ tabBarStyle: { display: "none" } }}
+                  />
+                  {/* <Tab.Screen
                   name="Promo"
                   component={PromoScreen}
                   options={{ tabBarStyle: { display: "none" } }}
                 /> */}
-                <Tab.Screen
-                  name="ThanksForOrder"
-                  options={{ tabBarStyle: { display: "none" } }}
-                  component={ThanksForOrderScreen}
-                ></Tab.Screen>
-              </Tab.Navigator>
-            </NavigationContainer>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
-    </SafeAreaProvider>
+                  <Tab.Screen
+                    name="ThanksForOrder"
+                    options={{ tabBarStyle: { display: "none" } }}
+                    component={ThanksForOrderScreen}
+                  ></Tab.Screen>
+                </Tab.Navigator>
+              </NavigationContainer>
+            </View>
+          </SafeAreaView>
+        </LinearGradient>
+      </SafeAreaProvider>
+    </Provider>
   );
 }
 

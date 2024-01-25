@@ -11,11 +11,24 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MainButton } from "../components/MainButton";
 import { useNavigation } from "@react-navigation/native";
 import MaskInput from "react-native-mask-input";
+import { useDispatch } from "react-redux";
+import { LoginAction } from "../services/action/action";
+import { useSelector, } from 'react-redux';
+import { useEffect } from "react";
+
+
 
 export const SignupScreen = () => {
   const navigation = useNavigation();
   const [phone, setPhone] = useState(" ");
-
+  const dispatch = useDispatch()
+  const login = useSelector((st) => st.login)
+  useEffect(() => {
+    console.log(login)
+    if (login.status) {
+      navigation.navigate("PhoneConfirmScreen", { phone });
+    }
+  }, [login]);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <LinearGradient colors={["#f7f7f7", "#fff"]} style={styles.container}>
@@ -57,7 +70,7 @@ export const SignupScreen = () => {
           <MainButton
             title="Отправить код"
             onPress={() => {
-              navigation.navigate("PhoneConfirmScreen");
+              dispatch(LoginAction({ phone: phone }))
             }}
           />
         </View>

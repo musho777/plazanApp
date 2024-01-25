@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 import ReturnIcon from "../icons/ReturnIcon";
 import { OrderList } from "../components/OrderList";
 import { Navbar } from "../components/Navbar";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useDispatch, useSelector } from "react-redux";
+import { GetMyOrderAction } from "../services/action/action";
 
 export const OrdersScreen = (props) => {
   const navigation = useNavigation();
-
+  const { token } = useSelector((st) => st.static)
+  const dispatch = useDispatch()
+  const getMyOrder = useSelector((st) => st.getMyOrder)
+  console.log(getMyOrder.data, 'getMyOrder')
+  useEffect(() => {
+    dispatch(GetMyOrderAction(token))
+  }, [dispatch])
   return (
     <LinearGradient colors={["#f7f7f7", "#fff"]} style={{ flex: 1 }}>
       <ScrollView style={styles.scroll}>

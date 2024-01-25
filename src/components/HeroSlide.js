@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   ImageBackground,
@@ -10,10 +10,15 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { GetBanners } from "../services/action/action";
 
 export const HeroSlide = (props) => {
   const navigation = useNavigation();
-
+  const dispatch = useDispatch()
+  // useEffect(() => {
+  //   dispatch(GetBanners())
+  // }, [])
   return (
     <ImageBackground
       style={[styles.hero, props.style]}

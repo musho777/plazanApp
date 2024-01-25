@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -17,10 +17,31 @@ import { ProfileUser } from "../components/ProfileUser";
 import { Contacts } from "../components/Contacts";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useDispatch, useSelector } from "react-redux";
+import { GetAuthUser } from "../services/action/action";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const ProfileScreen = (props) => {
   const navigation = useNavigation();
+
   const [modalVisible, setModalVisible] = useState(false);
+  const dispatch = useDispatch()
+  const getUser = useSelector((st) => st.getUser)
+
+  const GetUser = async () => {
+    let token = await AsyncStorage.getItem('token')
+    if (token) {
+      dispatch(GetAuthUser(token))
+    }
+  }
+
+  console.log(getUser, 'getUser')
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      GetUser()
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <View style={{ backgroundColor: "#f7f7f7", flex: 1, height: "100%" }}>
@@ -75,7 +96,13 @@ export const ProfileScreen = (props) => {
           </Modal> */}
           <View style={styles.containerTop}>
             <Text style={styles.title}>Профиль</Text>
-            <ProfileUser style={{ marginBottom: 42 }} />
+            <ProfileUser
+              phone={getUser.data.user?.phone}
+              name={getUser.data.user?.name}
+              surname={getUser.data.user?.surname}
+              userAvatar={getUser.data.user?.avatar}
+              style={{ marginBottom: 42 }}
+            />
 
             <View style={styles.menu}>
               <TouchableOpacity

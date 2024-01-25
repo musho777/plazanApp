@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -10,10 +10,22 @@ import { MainButton } from "../components/MainButton";
 import { useNavigation } from "@react-navigation/native";
 import { InputSms } from "../components/InputSms";
 import { LinearGradient } from "expo-linear-gradient";
+import { useDispatch, useSelector } from "react-redux";
+import { ClearLogin, ConfrimCode } from "../services/action/action";
 
-export const PhoneConfirmScreen = () => {
+export const PhoneConfirmScreen = ({ route }) => {
   const navigation = useNavigation();
   const [lastNumber, setLastNumber] = useState("");
+  const [code, setCode] = useState([]);
+  const confirmCode = useSelector((st) => st.confirmCode)
+
+  useEffect(() => {
+    if (confirmCode.status) {
+      navigation.navigate("SignupThanksScreen");
+    }
+
+  }, [confirmCode])
+
 
   const firstInput = useRef();
   const secondInput = useRef();
@@ -22,21 +34,34 @@ export const PhoneConfirmScreen = () => {
 
   const inputs = [firstInput, secondInput, thirdInput, fourthInput];
 
-  function handleChange(index) {
-    inputs[index].current.focus();
+  function handleChange(index, e) {
+    if (index != 4) {
+      inputs[index].current.focus();
+    }
+    let item = [...code]
+    item[index - 1] = e
+    setCode(item)
   }
+  async function handleSubmit() {
+    let textCode = ''
+    code.map((elm, i) => {
+      textCode = textCode + elm
+    })
+    dispatch(ConfrimCode({ phone: route.params.phone, code: textCode }))
+  }
+  const dispatch = useDispatch()
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <LinearGradient colors={["#f7f7f7", "#fff"]} style={styles.container}>
         <View style={styles.smsTop}>
           <Text style={styles.title}>Введите код из смс</Text>
           <Text style={styles.descr}>
-            Четырехзначный код был отправлен{"\n"}на номер +7 (999) 888 77 66
+            Четырехзначный код был отправлен{"\n"}на номер +{route.params.phone}
           </Text>
           <View style={styles.inputWrapper}>
             <InputSms
               innerRef={firstInput}
-              onChangeText={() => handleChange(1)}
+              onChangeText={(e) => handleChange(1, e)}
               keyboardType="phone-pad"
               textAlign="center"
               maxLength={1}
@@ -44,7 +69,7 @@ export const PhoneConfirmScreen = () => {
             />
             <InputSms
               innerRef={secondInput}
-              onChangeText={() => handleChange(2)}
+              onChangeText={(e) => handleChange(2, e)}
               keyboardType="phone-pad"
               textAlign="center"
               maxLength={1}
@@ -52,7 +77,7 @@ export const PhoneConfirmScreen = () => {
             />
             <InputSms
               innerRef={thirdInput}
-              onChangeText={() => handleChange(3)}
+              onChangeText={(e) => handleChange(3, e)}
               keyboardType="phone-pad"
               textAlign="center"
               maxLength={1}
@@ -63,10 +88,14 @@ export const PhoneConfirmScreen = () => {
               keyboardType="phone-pad"
               textAlign="center"
               maxLength={1}
-              onChangeText={() => {
+              onChangeText={(e) => {
+                handleChange(4, e)
                 Keyboard.dismiss();
               }}
             />
+          </View>
+          <View>
+            <Text style={{ color: 'red', textAlign: "center", marginTop: 20 }}>{confirmCode.error}</Text>
           </View>
         </View>
         <View style={styles.smsBtm}>
@@ -76,7 +105,8 @@ export const PhoneConfirmScreen = () => {
           <MainButton
             title="Продолжить"
             onPress={() => {
-              navigation.navigate("SignupThanksScreen");
+              handleSubmit()
+              // navigation.navigate("SignupThanksScreen");
             }}
           />
         </View>
